@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+        <link href="index.css" rel="stylesheet" type="text/css" />
+        <title>定时闹钟</title>
+    </head>
+    <body>
+        <table>
+            <thead>
+                <tr>
+                    <th>时间</th>
+                    <th>标题</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody id="table_body"></tbody>
+        </table>
+        <script src="jquery.3.3.1.min.js"></script>
+        <script src="index.js"></script>
+        <script>
+            let inputText = "";
+            utools.onPluginEnter(({ code, type, payload }) => {
+                flushTable(listAllJobs());
+                utools.setSubInput(({ text }) => {
+                    if (
+                        text
+                            .trim()
+                            .toUpperCase()
+                            .indexOf("@TODAY") == 0
+                    ) {
+                        var _now = new Date();
+                        var TODAY =
+                            _now.getFullYear() +
+                            "-" +
+                            (1 + _now.getMonth()) +
+                            "-" +
+                            _now.getDate();
+                        text = TODAY + text.substr(6);
+                        utools.setSubInputValue(text);
+                    } else if (
+                        text
+                            .trim()
+                            .toUpperCase()
+                            .indexOf("@NOW") == 0
+                    ) {
+                        var _now = new Date();
+                        var TODAY =
+                            _now.getFullYear() +
+                            "-" +
+                            (1 + _now.getMonth()) +
+                            "-" +
+                            _now.getDate();
+                        var NOW =
+                            TODAY +
+                            " " +
+                            (_now.getHours() > 9
+                                ? _now.getHours()
+                                : "0" + _now.getHours()) +
+                            ":" +
+                            (_now.getMinutes() > 9
+                                ? _now.getMinutes()
+                                : "0" + _now.getMinutes()) +
+                            ":";
+                        text = NOW + text.substr(4);
+                        utools.setSubInputValue(text);
+                    }
+                    inputText = text;
+                }, "输入表达式");
+            });
+
+            utools.onPluginReady(function() {
+                listAllJobs().forEach(doc => {
+                    regTimerJob(doc);
+                });
+            });
+            $(document).keydown(e => {
+                switch (e.keyCode) {
+                    case 13:
+						createAlarmJob(inputText);
+						utools.setSubInputValue('');
+                        break;
+                }
+            });
+        </script>
+    </body>
+</html>

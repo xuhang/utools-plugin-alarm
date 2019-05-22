@@ -1,0 +1,15 @@
+{
+	"pluginName": "提醒",
+	"description": "提醒功能",
+	"author": "tsui",
+	"main": "index.html",
+	"preload": "preload.js",
+	"version": "0.0.1",
+	"logo": "clock.png",
+	"features": [
+	    {
+	        "code": "timer",
+	        "cmds":["提醒", "timer", "t"]
+	    }
+	]
+}

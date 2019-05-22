@@ -1,0 +1,42 @@
+table {
+    border: 1px solid #ccc;
+    width: 80%;
+    margin: 0;
+    padding: 0;
+    border-collapse: collapse;
+    border-spacing: 0;
+    margin: 0 auto;
+}
+
+table tr {
+    border: 1px solid #ddd;
+    padding: 5px;
+}
+
+table th,
+table td {
+    padding: 10px;
+    text-align: center;
+}
+
+table th {
+    text-transform: uppercase;
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+
+td > span {
+	color: gray;
+}
+
+.job-status-0 {
+    color: green;
+}
+
+.job-status-1 {
+    font-weight: 600;
+}
+
+.job-status-2 {
+    color: red;
+}
