@@ -11,7 +11,7 @@ audio.src = 'elara.mp3';
 regTimerJob = (doc) => {
 	let now = new Date();
 	let timeGap = new Date(doc.data.time) - now;
-	if (timeGap > 0) {
+	if (timeGap > 0 && timeGap < Math.pow(2, 31)) {
 		let timeout = setTimeout(() => {
 			new window.Notification(doc.data.title, {
 				title: doc.data.title,
@@ -32,16 +32,45 @@ regTimerJob = (doc) => {
 }
 
 createAlarmJob = (text) => {
-	let reg1 = /\+(\d+)\s(.*)/;
+	let reg1 = /(?:(\d+)(Y))?(?:(\d+)(M))?(?:(\d+)(D))?(?:(\d+)(h))?(?:(\d+)(m))?(?:(\d+)(s)?)?\s+(.+)/;
 	let reg2 = /(\d{4}-\d{1,2}-\d{1,2}\s\d+:\d+:\d+)\s(.*)/;
 
 	let mtc1 = reg1.exec(text);
 
 	var time, title;
 	if (mtc1) {
-		let t1 = mtc1[1];
-		time = t1 * 1000 + new Date().getTime();
-		title = mtc1[2];
+		// let t1 = mtc1[1];
+		// time = t1 * 1000 + new Date().getTime();
+		// title = mtc1[2];
+		time = new Date()
+		for (let numInd = 1, flagInd = numInd + 1, end = mtc1.length - 1; numInd < end; numInd += 2, flagInd += 2) {
+			let num = parseInt(mtc1[numInd])
+			let flag = mtc1[flagInd]
+			if(num) {
+				switch (flag) {
+					case 'Y':
+						time.setFullYear(time.getFullYear() + num)
+						break;
+					case 'M':
+						time.setMonth(time.getMonth() + num)
+						break;
+					case 'D':
+						time.setDate(time.getDate() + num)
+						break;
+					case 'h':
+						time.setHours(time.getHours() + num)
+						break;
+					case 'm':
+						time.setMinutes(time.getMinutes() + num)
+						break;
+					case 's':
+					default:
+						time.setSeconds(time.getSeconds() + num)
+						break;
+				}
+			}
+		}
+		title = mtc1[13];
 	}
 
 	let mtc2 = reg2.exec(text);
@@ -50,12 +79,15 @@ createAlarmJob = (text) => {
 		time = mtc2[1];
 	}
 
-	const id = 'alarm/'+Math.floor(Math.random()*1000000000);
+	if(!mtc1 && !mtc2) {
+		return
+	}
+
+	const id = 'alarm/' + (+new Date());
 	utools.db.put({
 		_id: id,
 		data: {
-			time: time,
-			title: title,
+			time, title,
 			status: FRESH
 		}
 	});
@@ -66,13 +98,14 @@ createAlarmJob = (text) => {
 }
 
 deleteAlarmJob = (id) => {
-	clearTimeout(id);
 	let job = utools.db.get(id);
 	// job.data.status = DELETED;
 	// utools.db.put(job);
 	let res = utools.db.remove(id);
-	console.log('deletint job ', job.data.title);
-	delete alarmReg[id];
+	if (alarmReg[id]) {
+		clearTimeout(alarmReg[id])
+		delete alarmReg[id]
+	} 
 	flushTable(listAllJobs());
 }
 
